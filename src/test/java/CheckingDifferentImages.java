@@ -22,41 +22,55 @@ public class CheckingDifferentImages {
      * @param pathToTheSecond the path to the second
      * @param nameDifference the name difference
      * @param accuracy the accuracy   1pixels
+     * @throws MyOwnException 
      */
-    public static void checkDifference(String pathToTheFirstScreen, String pathToTheSecond, String nameDifference, int accuracy) {
+    public static void checkDifference(String pathToTheFirstScreen, String pathToTheSecond, String nameDifference, int accuracy){
         BufferedImage im1 = null;
         BufferedImage im2 = null;
-        try {
-            //loading the two pictures
-            //read and load the image
-        	log.info("screenshots"+ File.separator +pathToTheFirstScreen);
-            BufferedImage input = ImageIO.read(new File("screenshots"+ File.separator +pathToTheFirstScreen));
-            //build an image with the same dimension of the file read
-            im1 =
-                    new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            //object create to draw into the bufferedImage
-            Graphics2D g2d = im1.createGraphics();
-            //draw input into im
-            g2d.drawImage(input, 0, 0, null);
-            //making all again for the second image
-
-        	log.info("screenshots"+ File.separator + pathToTheSecond);
-            BufferedImage input2 = ImageIO.read(new File("screenshots"+ File.separator + pathToTheSecond));
-            //build an image with the same dimension of the file read
-            im2 =
-                    new BufferedImage(input2.getWidth(), input2.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            //object create to draw into the bufferedImage
-            Graphics2D g2d2 = im2.createGraphics();
-            //draw input into im
-            g2d2.drawImage(input2, 0, 0, null);
-        } catch (Exception ex) {
-       ex.printStackTrace();
-        }
-
-        showDifference(im1, im2, nameDifference, accuracy);
+        //loading the two pictures
+        //read and load the image
+      	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheFirstScreen;
+      	log.info(pathWithScreenshots1);
+        File screenShot1 = new File(pathWithScreenshots1);
+        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSecond;
+		log.info(pathWithScreenshots2);
+        File screenShot2 = new File(pathWithScreenshots2);
+		if (screenShot1.exists() && screenShot2.exists()){
+	        try {
+	        	BufferedImage input = ImageIO.read(screenShot1);
+	            //build an image with the same dimension of the file read
+	            im1 =
+	                    new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	            //object create to draw into the bufferedImage
+	            Graphics2D g2d = im1.createGraphics();
+	            //draw input into im
+	            g2d.drawImage(input, 0, 0, null);
+	            //making all again for the second image
+	
+	        	BufferedImage input2 = ImageIO.read(screenShot2);
+	            //build an image with the same dimension of the file read
+	            im2 =
+	                    new BufferedImage(input2.getWidth(), input2.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	            //object create to draw into the bufferedImage
+	            Graphics2D g2d2 = im2.createGraphics();
+	            //draw input into im
+	            g2d2.drawImage(input2, 0, 0, null);
+	        } catch (Exception ex) {
+	       ex.printStackTrace();
+	        }
+	
+	        showDifference(im1, im2, nameDifference, accuracy);
+        }else
+        	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
 
     }
 
+    class MyOwnException extends Exception {
+ 	   public MyOwnException(String msg){
+ 	      super(msg);
+ 	   }
+ }
+    
     /**
      * Show difference.
      *

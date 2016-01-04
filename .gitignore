@@ -18,3 +18,4 @@ webdriver.iml
 /logs
 /helpStuff/task.txt
 *.iml
+/target/

@@ -102,31 +102,20 @@ public class WebDriverController {
     }
 
     @AfterMethod
-    public void CheckScreens() throws MyOwnException {
+    public void CheckScreens() {
         if (isTest.equals("true")) {
             log.info("pathToNewScreens = " + pathToNewScreens);
-            String pathToEtalon = pathToNewScreens;
-            File file = new File(pathToEtalon);
-
-            log.info(file.getAbsolutePath());
-            log.info("etalonPath = " + pathToNewScreens.replaceAll("testing", "etalon"));
-            //if (file.exists())
+            log.info("etalonPath = screenshots" + "\\" + pathToNewScreens.replaceAll("testing", "etalon"));
 	            for (int i = 0; i < count; i++) {
 	                CheckingDifferentImages.checkDifference(pathToNewScreens + "\\" + i + ".png",
 	                        pathToNewScreens.replaceAll("testing", "etalon") + "\\" + i + ".png",
 	                        pathToNewScreens.replaceAll("testing", "diff") + "_diff_" + i + ".png", 1);
 	            }
-            //else
-            	//throw new MyOwnException("etalonPath = " + pathToNewScreens.replaceAll("testing", "etalon") + " does not exist");
         }
         count = 0;
     }
 
-    class MyOwnException extends Exception {
-    	   public MyOwnException(String msg){
-    	      super(msg);
-    	   }
-    }
+
     
     private static void deleteFileInDirectory(String path_from) {
         File f = new File(path_from);
