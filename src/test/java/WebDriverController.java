@@ -61,7 +61,6 @@ public class WebDriverController {
     String browserVersion = getProperties("browser-version");
     String screenResolution = getProperties("screen-resolution");
     String platform = getProperties("platform");
-    String sauceLabs = "";
     protected String testName;
     String baseUrl;
     String isTest;
@@ -83,9 +82,6 @@ public class WebDriverController {
     protected static Logger log = Logger.getLogger(WebDriverController.class);
 
     public WebDriverController() {
-        sauceLabs = System.getenv("sauceLabs");
-        if (sauceLabs == null)
-            sauceLabs = getProperties("sauceLabs");
         browser = System.getenv("browser");
         if (browser == null)
             browser = browserProp;
@@ -94,8 +90,8 @@ public class WebDriverController {
     @AfterSuite
     public void deleteFile() {
         if (isTest.equals("true")) {
-           // deleteFileInDirectory("screenshots\\testing");
-           // deleteFileInDirectory("screenshots\\etalon");
+           deleteFileInDirectory("screenshots\\testing");
+           deleteFileInDirectory("screenshots\\etalon");
         }
 
     }
@@ -139,17 +135,9 @@ public class WebDriverController {
         }
     }
     
-    private void setUrlForConnect() {
-        try {
-            urlForSauceLabs = new URL("http://" + username + ":" + key + "@ondemand.saucelabs.com:80/wd/hub");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-    }
     
     @BeforeSuite
     public void initBrowser() {
-	    setUrlForConnect();
 	    capabilities.setBrowserName(browser);
 	    capabilities.setCapability("version", browserVersion);
 	    capabilities.setCapability("platform", platform);
@@ -160,7 +148,6 @@ public class WebDriverController {
 
     @BeforeMethod
     public void setConditions(Method method) {
-        setName(method.getName());
         isTest = System.getenv("isTest");
         if (isTest == null) {
             isTest = getProperties("isTest");
@@ -189,15 +176,6 @@ public class WebDriverController {
 
     }
 
-    @AfterMethod
-    public void setResults(ITestResult result) {
-        if (!result.isSuccess()) {
-            setPassed(false);
-        } else {
-            setPassed(true);
-        }
-
-    }
 
     @AfterSuite
     public void checkTests() {
@@ -251,10 +229,7 @@ public class WebDriverController {
 
 
     private void setBrowser() {
-        if (sauceLabs.equals("true")) {
-            driver = new RemoteWebDriver(urlForSauceLabs, capabilities);
-        } else {
-            if ("firefox".equals(browser)) {
+       if ("firefox".equals(browser)) {
                 try {
                     String versionFirebug = getProperties("firebug-version");
                     FirefoxProfile firefoxProfile = new FirefoxProfile();
@@ -288,48 +263,8 @@ public class WebDriverController {
                     e.printStackTrace();
                 }
             }
-        }
         driver.manage().timeouts().setScriptTimeout(SCRIPT_TIMEOUT, TimeUnit.SECONDS);
         maximizeWindow();
-    }
-
-    public void setName(String name) { //Set test's name on Saucelabs
-
-        if (!sauceLabs.equals("true")) {
-            return;
-        }
-
-        String username = getProperties("username");
-        String key = getProperties("key");
-        String jobId = getDriver().getSessionId().toString(); //Sauce Job ID = RemoteWebDriver's Session ID
-        String screenResolution = getProperties("screen-resolution");
-
-        SauceREST client = new SauceREST(username, key);
-
-        Map<String, Object> updates = new HashMap<String, Object>();
-        updates.put("name", name + " " + screenResolution);
-
-        client.updateJobInfo(jobId, updates);
-
-    }
-
-    public void setPassed(Boolean passed) { //Set pass/fail status on Saucelabs
-
-        if (!sauceLabs.equals("true")) {
-            return;
-        }
-
-        String username = getProperties("username");
-        String key = getProperties("key");
-        String jobId = getDriver().getSessionId().toString();
-
-        SauceREST client = new SauceREST(username, key);
-
-        Map<String, Object> updates = new HashMap<String, Object>();
-        updates.put("passed", passed);
-
-        client.updateJobInfo(jobId, updates);
-
     }
 
     public void makeSauceScreenshot() {
@@ -872,17 +807,9 @@ public class WebDriverController {
         sendPause(5);
         log.info(pathToNewScreens);
         try {
-            if (sauceLabs.equals("true")) {
-                scrFile = ((TakesScreenshot) new Augmenter().augment(driver)).getScreenshotAs(OutputType.FILE);
-
-            } else {
-                scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-
-            }
+            scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(scrFile, new File("screenshots" +
                     File.separator + pathToNewScreens + "\\" + count++ + ".png"));
-            //log.info(new File("screenshots" +
-              //      File.separator + pathToNewScreens + "\\" + "new" + ".png").getAbsolutePath());
         } catch (IOException e1) {
             e1.printStackTrace();
         }

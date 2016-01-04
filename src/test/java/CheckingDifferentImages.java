@@ -82,7 +82,7 @@ public class CheckingDifferentImages {
         screenDifference.getParentFile().mkdirs();
 		if (screenShot1.exists() && screenShot2.exists()){
 
-			ImageComparison imageComparison = new ImageComparison(10,10,0.01);
+			ImageComparison imageComparison = new ImageComparison(8,8,0.01);
 			
 			try {
 				if(imageComparison.fuzzyEqual(screenShot1.getAbsolutePath(),screenShot2.getAbsolutePath(),screenDifference.getAbsolutePath()))
