@@ -4,6 +4,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import org.im4java.core.CompareCmd;
+import org.im4java.process.StandardStream;
+import org.im4java.core.IMOperation;
+import org.frontendtest.components.ImageComparison;
 
 
 /**
@@ -15,6 +21,84 @@ import java.io.File;
 public class CheckingDifferentImages {
     private static Logger log = Logger.getLogger(CheckingDifferentImages.class);
 
+    
+    public static boolean compareImages (String pathToTheNewOne, String pathToTheSampler, String nameDifference, int diffInt) {
+    	
+      	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheNewOne;
+      	log.info(pathWithScreenshots1);
+        File screenShot1 = new File(pathWithScreenshots1);
+        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSampler;
+        log.info(screenShot1.getAbsolutePath());
+        File screenShot2 = new File(pathWithScreenshots2);
+        log.info(screenShot2.getAbsolutePath());
+        String pathWithScreenshots3 = "screenshots"+ File.separator + nameDifference;
+        File screenDifference = new File(pathWithScreenshots3);
+        log.info(screenDifference.getAbsolutePath());
+		if (screenShot1.exists() && screenShot2.exists()){
+
+	    	  // This instance wraps the compare command
+	    	  CompareCmd compare = new CompareCmd();
+	    	 
+	    	  // For metric-output
+	    	  compare.setErrorConsumer(StandardStream.STDERR);
+	    	  IMOperation cmpOp = new IMOperation();
+	    	  // Set the compare metric
+	    	  cmpOp.metric("mae");
+	    	 
+	    	  // Add the expected image
+	    	  cmpOp.addImage(screenShot2.getAbsolutePath());
+	    	 
+	    	  // Add the current image
+	    	  cmpOp.addImage(screenShot1.getAbsolutePath());
+	    	 
+	    	  // This stores the difference
+	    	  cmpOp.addImage(screenDifference.getAbsolutePath());
+	    	 
+	    	  try {
+	    	    // Do the compare
+	    	    compare.run(cmpOp);
+	    	    return true;
+	    	  }
+	    	  catch (Exception ex) {
+	    	    return false;
+	    	  }
+		}else
+        	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
+			return false;
+    	}
+    
+    public static boolean compareImagesFront (String pathToTheNewOne, String pathToTheSampler, String nameDifference, int diffInt) {
+    	
+      	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheNewOne;
+      	log.info(pathWithScreenshots1);
+        File screenShot1 = new File(pathWithScreenshots1);
+        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSampler;
+        log.info(screenShot1.getAbsolutePath());
+        File screenShot2 = new File(pathWithScreenshots2);
+        log.info(screenShot2.getAbsolutePath());
+        String pathWithScreenshots3 = "screenshots"+ File.separator + nameDifference;
+        File screenDifference = new File(pathWithScreenshots3);
+        log.info(screenDifference.getAbsolutePath());
+        screenDifference.getParentFile().mkdirs();
+		if (screenShot1.exists() && screenShot2.exists()){
+
+			ImageComparison imageComparison = new ImageComparison(10,10,0.01);
+			
+			try {
+				if(imageComparison.fuzzyEqual(screenShot1.getAbsolutePath(),screenShot2.getAbsolutePath(),screenDifference.getAbsolutePath()))
+					System.out.println("Images are fuzzy-equal.");
+				else
+				System.out.println("Images are not fuzzy-equal.");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else
+        	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
+			return false;
+    	}
+    
+    
     /**
      * Check difference.
      *
@@ -33,8 +117,9 @@ public class CheckingDifferentImages {
       	log.info(pathWithScreenshots1);
         File screenShot1 = new File(pathWithScreenshots1);
         String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSecond;
-		log.info(pathWithScreenshots2);
+		log.info(screenShot1.getAbsolutePath());
         File screenShot2 = new File(pathWithScreenshots2);
+        log.info(screenShot2.getAbsolutePath());
 		if (screenShot1.exists() && screenShot2.exists()){
 	        try {
 	        	BufferedImage input = ImageIO.read(screenShot1);

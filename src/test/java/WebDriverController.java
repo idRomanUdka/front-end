@@ -2,7 +2,6 @@
 import com.googlecode.fightinglayoutbugs.FightingLayoutBugs;
 import com.googlecode.fightinglayoutbugs.LayoutBug;
 import com.googlecode.fightinglayoutbugs.WebPage;
-import com.opera.core.systems.OperaDriver;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -95,8 +94,8 @@ public class WebDriverController {
     @AfterSuite
     public void deleteFile() {
         if (isTest.equals("true")) {
-            deleteFileInDirectory("screenshots\\testing");
-            deleteFileInDirectory("screenshots\\etalon");
+           // deleteFileInDirectory("screenshots\\testing");
+           // deleteFileInDirectory("screenshots\\etalon");
         }
 
     }
@@ -104,10 +103,8 @@ public class WebDriverController {
     @AfterMethod
     public void CheckScreens() {
         if (isTest.equals("true")) {
-            log.info("pathToNewScreens = " + pathToNewScreens);
-            log.info("etalonPath = screenshots" + "\\" + pathToNewScreens.replaceAll("testing", "etalon"));
 	            for (int i = 0; i < count; i++) {
-	                CheckingDifferentImages.checkDifference(pathToNewScreens + "\\" + i + ".png",
+	                CheckingDifferentImages.compareImagesFront(pathToNewScreens + "\\" + i + ".png",
 	                        pathToNewScreens.replaceAll("testing", "etalon") + "\\" + i + ".png",
 	                        pathToNewScreens.replaceAll("testing", "diff") + "_diff_" + i + ".png", 1);
 	            }
@@ -287,12 +284,6 @@ public class WebDriverController {
                     String browserLanguage = "--lang=ru";
                     options.addArguments(browserLanguage);
                     driver = new ChromeDriver(options);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else if ("opera".equals(browser)) {
-                try {
-                    driver = new OperaDriver();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
