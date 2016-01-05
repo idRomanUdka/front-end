@@ -79,8 +79,8 @@ public class WebDriverController {
     
     @AfterSuite
     public void deleteFile() {
-           deleteFileInDirectory("screenshots\\checking");
-           deleteFileInDirectory("screenshots\\sample");
+    	//deleteFileInDirectory("screenshots\\checking");
+    	//deleteFileInDirectory("screenshots\\sample");
     }
 
     @AfterMethod
@@ -259,8 +259,8 @@ public class WebDriverController {
     }
 
     public void maximizeWindow() {
-    	driver.manage().window().maximize();
     	driverChecking.manage().window().maximize();
+    	driver.manage().window().maximize();
     }
 
     /**
@@ -299,11 +299,11 @@ public class WebDriverController {
      */
     public void openUrlInApp(String subUrl) {
         if (subUrl.length() > 0 && subUrl.indexOf("/") == 0){
-        	driver.get(sampleUrl + subUrl.substring(1));
         	driverChecking.get(checkingUrl + subUrl.substring(1));
+        	driver.get(sampleUrl + subUrl.substring(1));
         }else{
-        	driver.get(sampleUrl + subUrl);
     		driverChecking.get(checkingUrl + subUrl);
+        	driver.get(sampleUrl + subUrl);
         }
     }
 
@@ -570,8 +570,8 @@ public class WebDriverController {
      */
     public void submit(By by) {
         waitForElementPresent(by);
-        driver.findElement(by).submit();
         driverChecking.findElement(by).submit();
+        driver.findElement(by).submit();
 
     }
 
@@ -703,11 +703,11 @@ public class WebDriverController {
     public void type(By by, String someText) {
         log.debug("Type:" + someText + " to:");
         validateElementVisible(by);
-        driver.findElement(by).clear();
-        driver.findElement(by).sendKeys(someText);
-        
         driverChecking.findElement(by).clear();
         driverChecking.findElement(by).sendKeys(someText);
+        
+        driver.findElement(by).clear();
+        driver.findElement(by).sendKeys(someText);
     }
 
 

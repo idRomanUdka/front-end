@@ -11,7 +11,9 @@ public class ExampleTest extends WebDriverController {
 	//CAS
 	private static final By FIELD_LOGIN = By.name("username");
 	private static final By FIELD_PASSWORD = By.name("password");
-    
+	
+	//SEARCH FIELD
+	private static final By FIELD_SEARCH = By.name("query");
 	
     //Tabs
     private static final By TAB_SUBSCRIPTIONS = By.cssSelector("a[href='#your-holdings']");
@@ -20,6 +22,7 @@ public class ExampleTest extends WebDriverController {
     @BeforeTest
     public void login(){
         openUrlInApp(pageUrl);
+        addCookie("RS.LOCATION", "2519ca7b-4a4c-4f9d-908f-c2c755598618");
         login("pivaniushyn@copyright.com", "123456");
     }
     
@@ -34,8 +37,10 @@ public class ExampleTest extends WebDriverController {
     public void testScreens(){
         openUrlInApp("/");
         makeScreenshot();
-        //click(TAB_SUBSCRIPTIONS);
-        //click(TAB_REPORTS);
+        type(FIELD_SEARCH, "soccer");
+        submit(FIELD_SEARCH);
+        waitForPageLoaded();//waitForScriptLoaded("common.js");
+        makeScreenshot();
     }
     
     @Test
