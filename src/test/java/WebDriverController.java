@@ -48,34 +48,24 @@ import java.util.concurrent.TimeUnit;
  * The type Web driver controller.
  */
 public class WebDriverController {
-    public RemoteWebDriver driver;
+    public WebDriver driver;
+    public WebDriver driverChecking;
     private static final int SCRIPT_TIMEOUT = 30;
     private WebDriverWait waitDriver;
-    private DesiredCapabilities capabilities = new DesiredCapabilities();
-    private URL urlForSauceLabs;
+
+    protected int count = 0;
+    private String pathToCheckingScreens = "";
+    private String pathToSampleScreens = "";
+    private String pathToDiffScreens = "";
     String browser = "";
     String browserProp = getProperties("browser");
     String flagFirebug = getProperties("flagFirebug");
-    String key = getProperties("key");
-    String username = getProperties("username");
-    String browserVersion = getProperties("browser-version");
-    String screenResolution = getProperties("screen-resolution");
-    String platform = getProperties("platform");
-    protected String testName;
-    String baseUrl;
-    String isTest;
-
-
-    JSONObject json = new JSONObject();
-
-
-    Method methodName;
-    private Collection<LayoutBug> layoutBugs = new ArrayList<LayoutBug>();
-    WebPage webPage;
-    protected int count = 0;
-    private String pathToNewScreens = "";
-    FightingLayoutBugs flb = new FightingLayoutBugs();
+    String sampleUrl = "";
+    String checkingUrl = "";
     static List<String> failedTests = new ArrayList<String>();
+
+
+    
     /**
      * The constant log.
      */
@@ -86,25 +76,20 @@ public class WebDriverController {
         if (browser == null)
             browser = browserProp;
     }
-
+    
     @AfterSuite
     public void deleteFile() {
-        if (isTest.equals("true")) {
-           deleteFileInDirectory("screenshots\\testing");
-           deleteFileInDirectory("screenshots\\etalon");
-        }
-
+           deleteFileInDirectory("screenshots\\checking");
+           deleteFileInDirectory("screenshots\\sample");
     }
 
     @AfterMethod
     public void CheckScreens() {
-        if (isTest.equals("true")) {
 	            for (int i = 0; i < count; i++) {
-	                CheckingDifferentImages.compareImagesFront(pathToNewScreens + "\\" + i + ".png",
-	                        pathToNewScreens.replaceAll("testing", "etalon") + "\\" + i + ".png",
-	                        pathToNewScreens.replaceAll("testing", "diff") + "_diff_" + i + ".png", 1);
+	                CheckingDifferentImages.checkDifference(pathToCheckingScreens + "\\" + i + ".png",
+	                		pathToSampleScreens + "\\" + i + ".png",
+	                		pathToDiffScreens + "_diff_" + i + ".png", 1);
 	            }
-        }
         count = 0;
     }
 
@@ -138,44 +123,28 @@ public class WebDriverController {
     
     @BeforeSuite
     public void initBrowser() {
-	    capabilities.setBrowserName(browser);
-	    capabilities.setCapability("version", browserVersion);
-	    capabilities.setCapability("platform", platform);
-	    capabilities.setCapability("screen-resolution", screenResolution);
-	    capabilities.setCapability("prerun", json);
-	    setBrowser();
+    	if (driver == null){
+    		setBrowser();
+        	sampleUrl = System.getenv("sampleUrl");
+        	if (sampleUrl == null) {
+        		sampleUrl = getProperties("sampleUrl");
+        	}
+        	checkingUrl = System.getenv("checkingUrl");
+        	if (checkingUrl == null) {
+        		checkingUrl = getProperties("checkingUrl");
+        	}
+    	}
     }
 
     @BeforeMethod
-    public void setConditions(Method method) {
-        isTest = System.getenv("isTest");
-        if (isTest == null) {
-            isTest = getProperties("isTest");
-        }
-        if (isTest.equals("false")) {
-            baseUrl = System.getenv("etalonUrl");
-            if (baseUrl == null) {
-                baseUrl = getProperties("etalonUrl");
-            }
-            pathToNewScreens = "etalon\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + method.getName();
+    public void setConditions(Method method) {{
 
-        } else {
-            baseUrl = System.getenv("checkingUrl");
-            if (baseUrl == null) {
-                baseUrl = getProperties("checkingUrl");
-            }
-            pathToNewScreens = "testing\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + method.getName();
-        }
-        log.info("method = " + pathToNewScreens);
-        openUrlInApp("settings/setLanguage/?languageCode=ru");
-        //log.info(method.get)
+        pathToCheckingScreens = "screenshots\\checking\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + method.getName();
+        pathToSampleScreens = pathToCheckingScreens.replaceAll("checking", "sample");
+    	pathToDiffScreens = pathToCheckingScreens.replaceAll("checking", "diff");
+    	}
         
     }
-
-    public void initBaseUrl() {
-
-    }
-
 
     @AfterSuite
     public void checkTests() {
@@ -185,30 +154,6 @@ public class WebDriverController {
                 log.error(s);
             Assert.fail("There was errors in tests");
         }
-    }
-
-    public void checkCurrentUrl() {
-        try {
-
-            webPage = new WebPage(driver);
-            flb.setScreenshotDir(new File("target" + File.separator + "screensLayoutErrors"));
-            layoutBugs = flb.findLayoutBugsIn(webPage);
-        } catch (Exception e) {
-        } finally {
-            try {
-                File errorFile = new File("target" + File.separator + "errors.txt");
-                if (!layoutBugs.isEmpty()) {
-                    log.error("Found " + layoutBugs.size() + " layout bug(s).");
-                    for (LayoutBug bug : layoutBugs) {
-                        log.error(bug);
-                    }
-                    FileUtils.writeLines(errorFile, layoutBugs);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     /**
@@ -240,6 +185,7 @@ public class WebDriverController {
                                 versionFirebug); // Avoid startup screen
                     }
                     driver = new FirefoxDriver(firefoxProfile);
+                    driverChecking = new FirefoxDriver(firefoxProfile);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -249,6 +195,7 @@ public class WebDriverController {
                     DesiredCapabilities capabilitiesIe = DesiredCapabilities.internetExplorer();
                     capabilitiesIe.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
                     driver = new InternetExplorerDriver(capabilitiesIe);
+                    driverChecking = new InternetExplorerDriver(capabilitiesIe);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -256,24 +203,16 @@ public class WebDriverController {
                 try {
                     System.setProperty("webdriver.chrome.driver", "lib\\chromedriver.exe");
                     ChromeOptions options = new ChromeOptions();
-                    String browserLanguage = "--lang=ru";
+                    String browserLanguage = "--lang=en";
                     options.addArguments(browserLanguage);
                     driver = new ChromeDriver(options);
+                    driverChecking = new ChromeDriver(options);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         driver.manage().timeouts().setScriptTimeout(SCRIPT_TIMEOUT, TimeUnit.SECONDS);
         maximizeWindow();
-    }
-
-    public void makeSauceScreenshot() {
-        /*
-        Unfortunately, Saucelabs doesn't have any command to make a screenshot
-        So the only way is to perform an action which doesn't cause any visible effects but causes Sauce to make a screenshot
-        */
-        executeScript("universalAnswer = 42");
-
     }
 
     public void clickAtLocationOf(By element) {
@@ -288,7 +227,7 @@ public class WebDriverController {
      *
      * @param driver the driver
      */
-    public void waitForPageLoaded(WebDriver driver) {
+    public void waitForPageLoaded() {
         ExpectedCondition<Boolean> expectation = new
                 ExpectedCondition<Boolean>() {
                     public Boolean apply(WebDriver driver) {
@@ -305,22 +244,6 @@ public class WebDriverController {
         }
     }
 
-
-    public void waitForImageLoad(final String selector, final String width) {
-        ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-            @Override
-            public Boolean apply(WebDriver webDriver) {
-                String resultScript = String.valueOf(
-                        driver.executeScript("return $('" + selector + "')[0].naturalWidth"));
-                return resultScript.equals(width);
-            }
-        };
-        WebDriverWait wait = new WebDriverWait(driver, 30);
-        wait.until(condition);
-
-    }
-
-
     public boolean waitForScriptLoaded(String src) {
         for (int i = 0; i < SCRIPT_TIMEOUT; i++) {
             Long jsLoaded = (Long) executeScript("return $('script[src*=\"" + src + "\"]').length;");
@@ -336,7 +259,8 @@ public class WebDriverController {
     }
 
     public void maximizeWindow() {
-        driver.manage().window().maximize();
+    	driver.manage().window().maximize();
+    	driverChecking.manage().window().maximize();
     }
 
     /**
@@ -374,17 +298,13 @@ public class WebDriverController {
      * @param subUrl the sub url
      */
     public void openUrlInApp(String subUrl) {
-        if (subUrl.length() > 0 && subUrl.indexOf("/") == 0)
-            if (baseUrl.lastIndexOf("/") == baseUrl.length() - 1)
-                get(baseUrl + subUrl.substring(1));
-            else
-                get(baseUrl + subUrl);
-        else if (baseUrl.lastIndexOf("/") == baseUrl.length() - 1)
-            get(baseUrl + subUrl);
-        else
-            get(baseUrl + "/" + subUrl);
-        waitForPageLoaded(driver);
-        makeScreenshot();
+        if (subUrl.length() > 0 && subUrl.indexOf("/") == 0){
+        	driver.get(sampleUrl + subUrl.substring(1));
+        	driverChecking.get(checkingUrl + subUrl.substring(1));
+        }else{
+        	driver.get(sampleUrl + subUrl);
+    		driverChecking.get(checkingUrl + subUrl);
+        }
     }
 
     /**
@@ -651,6 +571,7 @@ public class WebDriverController {
     public void submit(By by) {
         waitForElementPresent(by);
         driver.findElement(by).submit();
+        driverChecking.findElement(by).submit();
 
     }
 
@@ -686,10 +607,10 @@ public class WebDriverController {
      */
     public void click(By by) {
         log.debug("Click : ");
-        waitForPageLoaded(driver);
+        waitForPageLoaded();
         assertVisible(by);
         driver.findElement(by).click();
-        waitForPageLoaded(driver);
+        waitForPageLoaded();
         makeScreenshot();
     }
 
@@ -784,6 +705,9 @@ public class WebDriverController {
         validateElementVisible(by);
         driver.findElement(by).clear();
         driver.findElement(by).sendKeys(someText);
+        
+        driverChecking.findElement(by).clear();
+        driverChecking.findElement(by).sendKeys(someText);
     }
 
 
@@ -803,13 +727,15 @@ public class WebDriverController {
      * Make screenshot.
      */
     public void makeScreenshot() {
-        File scrFile;
+        File scrFileChecking;
+        File scrFileSample;
         sendPause(5);
-        log.info(pathToNewScreens);
         try {
-            scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            FileUtils.copyFile(scrFile, new File("screenshots" +
-                    File.separator + pathToNewScreens + "\\" + count++ + ".png"));
+            scrFileChecking = ((TakesScreenshot) driverChecking).getScreenshotAs(OutputType.FILE);
+            scrFileSample = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            int i = count++;
+			FileUtils.copyFile(scrFileSample, new File(pathToSampleScreens + "\\" + i + ".png"));
+            FileUtils.copyFile(scrFileChecking, new File(pathToCheckingScreens + "\\" + i + ".png"));
         } catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -961,8 +887,17 @@ public class WebDriverController {
      *
      * @return the driver
      */
-    public RemoteWebDriver getDriver() {
+    public WebDriver getDriver() {
         return driver;
+    }
+    
+    /**
+     * Returns WebDriver
+     *
+     * @return the driver
+     */
+    public WebDriver getCheckingDriver() {
+        return driverChecking;
     }
 
     /**
@@ -1110,8 +1045,11 @@ public class WebDriverController {
     public void shutdown() {
         try {
             driver.quit();
+            driverChecking.quit();
         } catch (Exception e) {
         }
+        driver = null;
+        driverChecking = null;
     }
 
     /**

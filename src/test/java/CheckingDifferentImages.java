@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.im4java.core.CompareCmd;
 import org.im4java.process.StandardStream;
 import org.im4java.core.IMOperation;
-import org.frontendtest.components.ImageComparison;
+//import org.frontendtest.components.ImageComparison;
 
 
 /**
@@ -22,12 +22,12 @@ public class CheckingDifferentImages {
     private static Logger log = Logger.getLogger(CheckingDifferentImages.class);
 
     
-    public static boolean compareImages (String pathToTheNewOne, String pathToTheSampler, String nameDifference, int diffInt) {
+    public static boolean compareImages (String pathToTheNewOne, String pathToTheSample, String nameDifference, int diffInt) {
     	
       	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheNewOne;
       	log.info(pathWithScreenshots1);
         File screenShot1 = new File(pathWithScreenshots1);
-        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSampler;
+        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSample;
         log.info(screenShot1.getAbsolutePath());
         File screenShot2 = new File(pathWithScreenshots2);
         log.info(screenShot2.getAbsolutePath());
@@ -66,7 +66,7 @@ public class CheckingDifferentImages {
         	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
 			return false;
     	}
-    
+    /*
     public static boolean compareImagesFront (String pathToTheNewOne, String pathToTheSampler, String nameDifference, int diffInt) {
     	
       	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheNewOne;
@@ -96,7 +96,7 @@ public class CheckingDifferentImages {
 		}else
         	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
 			return false;
-    	}
+    	}*/
     
     
     /**
@@ -113,12 +113,9 @@ public class CheckingDifferentImages {
         BufferedImage im2 = null;
         //loading the two pictures
         //read and load the image
-      	String pathWithScreenshots1 = "screenshots"+ File.separator +pathToTheFirstScreen;
-      	log.info(pathWithScreenshots1);
-        File screenShot1 = new File(pathWithScreenshots1);
-        String pathWithScreenshots2 = "screenshots"+ File.separator + pathToTheSecond;
-		log.info(screenShot1.getAbsolutePath());
-        File screenShot2 = new File(pathWithScreenshots2);
+        File screenShot1 = new File(pathToTheFirstScreen);
+        log.info(screenShot1.getAbsolutePath());
+        File screenShot2 = new File(pathToTheSecond);
         log.info(screenShot2.getAbsolutePath());
 		if (screenShot1.exists() && screenShot2.exists()){
 	        try {
@@ -146,7 +143,7 @@ public class CheckingDifferentImages {
 	
 	        showDifference(im1, im2, nameDifference, accuracy);
         }else
-        	log.error(pathWithScreenshots1 + " or " + pathWithScreenshots2 + " does not exist");
+        	log.error(pathToTheFirstScreen + " or " + pathToTheSecond + " does not exist");
 
     }
 
@@ -213,8 +210,8 @@ public class CheckingDifferentImages {
                 File fileScreenshot = new File("target"+ File.separator +"failure_screenshots"+ File.separator +nameDifference);
                 fileScreenshot.getParentFile().mkdirs();
                 ImageIO.write(resultImage, "PNG", fileScreenshot);
-                log.info("Diff screen was saved in "+"target"+ File.separator +"failure_screenshots"+ File.separator + nameDifference);
-                WebDriverController.failedTests.add("Diff screen was saved in "+"target"+ File.separator +"failure_screenshots"+ File.separator + nameDifference);
+                log.info("The Diff screen was saved into " + fileScreenshot.getAbsolutePath());
+                WebDriverController.failedTests.add("The Diff screen was saved into " + fileScreenshot.getAbsolutePath());
                } else {
               log.info("Everything is ok!");
             }
