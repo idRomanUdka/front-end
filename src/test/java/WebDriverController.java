@@ -21,6 +21,7 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -358,15 +359,15 @@ public class WebDriverController {
      * @param by the by
      * @return the boolean
      */
-    protected boolean waitForElementPresent(By by) {
-        for (int i = 0; i < SCRIPT_TIMEOUT; i++) {
-            if (isElementPresent(by)) {
-                return true;
-            }
-            sendPause(1);
+    public boolean waitForElementPresent(By by) {
+        
+        try{
+        	new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(by));
+        }catch(RuntimeException e){
+        	return false;
         }
+    	return true;
 
-        return false;
     }
 
     protected boolean assertVisible(By by) {
@@ -424,6 +425,16 @@ public class WebDriverController {
         });
     }
 
+    public boolean validateElementInvisible(By by) {
+        
+        try{
+        	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
+        }catch(RuntimeException e){
+        	return false;
+        }
+    	return true;
+
+    }
 
     /**
      * Click on staleness element.
@@ -777,36 +788,35 @@ public class WebDriverController {
 
     /**
      * Validates that element is visible
-     * returns true if locator is visible
-     * returns false if locator is not visible for a while
+     * returns true if by is visible
+     * returns false if by is not visible for a while
      *
-     * @param by the by
-     * @return the boolean
+     * @param by - by of element contains xpath= or id= or css
      */
     public boolean validateElementVisible(By by) {
-        for (int i = 0; i < SCRIPT_TIMEOUT; i++) {
-            if (isVisible(by))
-                return true;
-            sendPause(1);
+        
+        try{
+        	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfAllElementsLocatedBy(by));
+        }catch(RuntimeException e){
+        	return false;
         }
-        return false;
+    	return true;
 
     }
 
     /**
-     * Validate element enable.
+     * elementToBeClickable(WebElement element)
+     *An expectation for checking an element is visible and enabled such that you can click it.
      *
-     * @param by the by
-     * @return the boolean
      */
-    public boolean validateElementEnable(By by) {
-        for (int i = 0; i < SCRIPT_TIMEOUT; i++) {
-            if (isEnable(by))
-                return true;
-            sendPause(1);
+    public boolean validateElementClickable(final By by) {
+    	
+        try{
+        	new WebDriverWait(driver, 15).until(ExpectedConditions.elementToBeClickable(by));
+        }catch(RuntimeException e){
+        	return false;
         }
-        return false;
-
+    	return true;
     }
 
     /**
@@ -815,13 +825,14 @@ public class WebDriverController {
      * @param by the by
      */
     public void waitWhileElementIsPresent(By by) {
-        for (int i = 0; i < SCRIPT_TIMEOUT; i++) {
-            if (!isElementPresent(by)) {
+    	waitForElementPresent(by);
+        for (int i = 0; i < 30; i++) {
+            if (getCountElements(by) == 0) {
                 return;
             }
             sendPause(1);
         }
-        throw new RuntimeException("The time is out, isn't closed.");
+        throw new RuntimeException("The element is still present");
     }
 
 
@@ -944,6 +955,7 @@ public class WebDriverController {
      */// Set a cookie
     public void addCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
+        driverChecking.manage().addCookie(cookie);
         driver.manage().addCookie(cookie);
     }
 
