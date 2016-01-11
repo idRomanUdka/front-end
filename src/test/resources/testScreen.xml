@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Screens_suite">
+    <test name="screens_suite">
+        <classes>
+           <class name="com.rightfind.test.ScreenTest"></class>
+        </classes>
+    </test>
+</suite>
