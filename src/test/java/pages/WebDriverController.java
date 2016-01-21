@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -48,6 +49,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
 
 /**
  * The type Web driver controller.
@@ -80,6 +83,17 @@ public class WebDriverController {
         browser = System.getenv("browser");
         if (browser == null)
             browser = browserProp;
+        if (driver == null && driverChecking == null){
+    		setBrowser();
+        	sampleUrl = System.getenv("sampleUrl");
+        	if (sampleUrl == null) {
+        		sampleUrl = getProperties("sampleUrl");
+        	}
+        	checkingUrl = System.getenv("checkingUrl");
+        	if (checkingUrl == null) {
+        		checkingUrl = getProperties("checkingUrl");
+        	}
+    	}
     }
     
     @AfterSuite
@@ -128,22 +142,11 @@ public class WebDriverController {
     
     @BeforeSuite
     public void initBrowser() {
-    	if (driver == null){
-    		setBrowser();
-        	sampleUrl = System.getenv("sampleUrl");
-        	if (sampleUrl == null) {
-        		sampleUrl = getProperties("sampleUrl");
-        	}
-        	checkingUrl = System.getenv("checkingUrl");
-        	if (checkingUrl == null) {
-        		checkingUrl = getProperties("checkingUrl");
-        	}
-    	}
+    	
     }
 
     @BeforeMethod
     public void setConditions(Method method) {{
-
         pathToCheckingScreens = "screenshots\\checking\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + method.getName();
         pathToSampleScreens = pathToCheckingScreens.replaceAll("checking", "sample");
     	pathToDiffScreens = pathToCheckingScreens.replaceAll("checking", "diff");
@@ -209,6 +212,7 @@ public class WebDriverController {
                     System.setProperty("webdriver.chrome.driver", "lib\\chromedriver.exe");
                     ChromeOptions options = new ChromeOptions();
                     String browserLanguage = "--lang=en";
+                    options.addArguments("--start-maximized");
                     options.addArguments(browserLanguage);
                     driver = new ChromeDriver(options);
                     driverChecking = new ChromeDriver(options);
@@ -264,8 +268,8 @@ public class WebDriverController {
     }
 
     public void maximizeWindow() {
-    	driverChecking.manage().window().maximize();
-    	driver.manage().window().maximize();
+    	//driverChecking.manage().window().maximize();
+    	//driver.manage().window().maximize();
     }
 
     /**
@@ -310,6 +314,7 @@ public class WebDriverController {
     		driverChecking.get(checkingUrl + subUrl);
         	driver.get(sampleUrl + subUrl);
         }
+        waitForPageLoaded();
     }
 
     /**
@@ -348,9 +353,11 @@ public class WebDriverController {
                 ((0 >= widthWindow) && (0 >= heightWindow))) {
             Dimension targetSize = new Dimension(widthWindow, heightWindow);
             WebDriver.Window window = driver.manage().window();
+            WebDriver.Window window2 = driverChecking.manage().window();
             Dimension size = window.getSize();
             log.debug("Current windowSize = " + size);
             window.setSize(targetSize);
+            window2.setSize(targetSize);
             log.debug("New windowSize = " + size);
         } else {
             log.debug("it is impossible");
@@ -756,8 +763,46 @@ public class WebDriverController {
         }
 
     }
+    
+    /**
+     * Make screenshot.
+     * @throws IOException 
+     */
+    public void makeScreenshotOfElement(By by) {
+    	Assert.assertTrue(validateElementVisible(by), "The Element " + by + " is not visible");
+    	WebElement element = driver.findElement(by);  
+    	WebElement element2 = driverChecking.findElement(by);  
+    	//Get entire page screenshot
+    	File screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+    	File screenshot2 = ((TakesScreenshot)driverChecking).getScreenshotAs(OutputType.FILE);
+	    try {
+	    	BufferedImage  fullImg = ImageIO.read(screenshot);
+	    	BufferedImage  fullImg2 = ImageIO.read(screenshot2);
+	    	//Get the location of element on the page
+	    	Point point = element.getLocation();
+	    	Point point2 = element2.getLocation();
+	    	//Get width and height of the element
+	    	int eleWidth = element.getSize().getWidth();
+	    	int eleHeight = element.getSize().getHeight();
+	    	int eleWidth2 = element2.getSize().getWidth();
+	    	int eleHeight2 = element2.getSize().getHeight();
+	    	//Crop the entire page screenshot to get only element screenshot
+	    	BufferedImage eleScreenshot= fullImg.getSubimage(point.getX(), point.getY(), eleWidth,
+	    	    eleHeight);
+	    	ImageIO.write(eleScreenshot, "png", screenshot);
+	    	BufferedImage eleScreenshot2= fullImg2.getSubimage(point2.getX(), point2.getY(), eleWidth2,
+	        	    eleHeight2);
+	        ImageIO.write(eleScreenshot2, "png", screenshot2);
+	    	//Copy the element screenshot to disk
+	        int i = count++;
+	        FileUtils.copyFile(screenshot, new File(pathToSampleScreens + "\\" + i + ".png"));
+			FileUtils.copyFile(screenshot2, new File(pathToCheckingScreens + "\\" + i + ".png"));
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
 
-
+    }
+  
     /**
      * Validate element present.
      *
@@ -800,7 +845,7 @@ public class WebDriverController {
     public boolean validateElementVisible(By by) {
         
         try{
-        	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfAllElementsLocatedBy(by));
+        	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }
@@ -828,15 +873,15 @@ public class WebDriverController {
      *
      * @param by the by
      */
-    public void waitWhileElementIsPresent(By by) {
+    public void waitWhileElementIsVisible(By by) {
     	waitForElementPresent(by);
-        for (int i = 0; i < 30; i++) {
-            if (getCountElements(by) == 0) {
+        for (int i = 0; i < 32; i++) {
+            if (validateElementInvisible(by)) {
                 return;
             }
             sendPause(1);
         }
-        throw new RuntimeException("The element is still present");
+        throw new RuntimeException("The element is still visible");
     }
 
 

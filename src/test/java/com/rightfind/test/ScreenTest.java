@@ -16,7 +16,7 @@ public class ScreenTest extends WebDriverController{
 	
 	//URLS
 	private String urlDigitalLibrary = "admin#local-library";
-	private String urlSearch = "/rs-ui-web/search#all/soccer";
+	private String urlSearch = "/search#all/soccer";
 	
 	//LOGIN FORM
 	private static final By FIELD_LOGIN = By.name("username");
@@ -24,10 +24,14 @@ public class ScreenTest extends WebDriverController{
 	
 	//LOADER
     private static final By IMG_LOADING = By.cssSelector(".loading");
+    
+    //SEARCH FIELD
+  	private static final By FIELD_SEARCH = By.name("query");
 
     @BeforeTest
     public void login(){
         openUrlInApp(urlDigitalLibrary);
+        windowSetSize(1600,900);
         addCookie("RS.LOCATION", "2519ca7b-4a4c-4f9d-908f-c2c755598618");
 		type(FIELD_LOGIN, "pivaniushyn@copyright.com");
 		type(FIELD_PASSWORD, "123456");
@@ -39,15 +43,14 @@ public class ScreenTest extends WebDriverController{
 	@Test
     public void testSearch(){
         openUrlInApp("/");
-        makeScreenshot();
+        makeScreenshotOfElement(FIELD_SEARCH);
         openUrlInApp(urlSearch);
-	    waitForPageLoaded();
-	    waitWhileElementIsPresent(IMG_LOADING);
+	    waitWhileElementIsVisible(IMG_LOADING);
         makeScreenshot();
     }
     
     @Test
-    public void testLogin(){
+    public void testDigitalLibrary(){
         openUrlInApp(urlDigitalLibrary);
         makeScreenshot();
     }

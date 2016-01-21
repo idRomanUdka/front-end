@@ -14,7 +14,7 @@ public class SearchPage extends WebDriverController{
 		 type(FIELD_SEARCH, searchText);
 	     submit(FIELD_SEARCH);
 	     waitForPageLoaded();
-	     waitWhileElementIsPresent(IMG_LOADING);
+	     waitWhileElementIsVisible(IMG_LOADING);
 	 }
 	
 }
