@@ -80,7 +80,7 @@ public class WebDriverController {
     protected static Logger log = Logger.getLogger(WebDriverController.class);
 
     public WebDriverController() {
-        browser = System.getenv("browser");
+    	browser = System.getenv("browser");
         if (browser == null)
             browser = browserProp;
         if (driver == null && driverChecking == null){
@@ -96,10 +96,12 @@ public class WebDriverController {
     	}
     }
     
-    @AfterSuite
+    @BeforeSuite
     public void deleteFile() {
-    	//deleteFileInDirectory("screenshots\\checking");
-    	//deleteFileInDirectory("screenshots\\sample");
+    	if(Boolean.valueOf(System.getProperty("flagClean"))){
+	    	deleteFileInDirectory("screenshots\\checking");
+	    	deleteFileInDirectory("screenshots\\sample");
+    	}
     }
 
     @AfterMethod
