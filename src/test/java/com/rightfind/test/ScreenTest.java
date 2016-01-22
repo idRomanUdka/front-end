@@ -1,13 +1,9 @@
 package com.rightfind.test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import pages.LoginPage;
-import pages.SearchPage;
 import pages.WebDriverController;
 import utils.WebDriverListener;
 
