@@ -19,3 +19,5 @@ webdriver.iml
 /helpStuff/task.txt
 *.iml
 /target/
+*.png
+*.jpg

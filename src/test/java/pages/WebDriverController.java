@@ -163,7 +163,7 @@ public class WebDriverController {
         if (!failedTests.isEmpty()) {
             for (String s : failedTests){
                 log.error(s);
-            	Assert.fail("There were some errors in tests " + failedTests);
+            	Assert.fail("There were some errors in tests " + s);
             }
         }
     }
