@@ -112,7 +112,7 @@ public class CheckingDifferentImages {
      * @param accuracy the accuracy   1pixels
      * @throws MyOwnException 
      */
-    public static void checkDifference(String pathToTheFirstScreen, String pathToTheSecond, String nameDifference, int accuracy){
+    public static boolean checkDifference(String pathToTheFirstScreen, String pathToTheSecond, String nameDifference, int accuracy){
         BufferedImage im1 = null;
         BufferedImage im2 = null;
         //loading the two pictures
@@ -142,13 +142,15 @@ public class CheckingDifferentImages {
 	            //draw input into im
 	            g2d2.drawImage(input2, 0, 0, null);
 	        } catch (Exception ex) {
-	       ex.printStackTrace();
+		       ex.printStackTrace();
+		       return true;
 	        }
-	
 	        showDifference(im1, im2, nameDifference, accuracy);
-        }else
+	        return false;
+        }else{
         	log.error(pathToTheFirstScreen + " or " + pathToTheSecond + " does not exist");
-
+        	return true;
+        }
     }
 
     class MyOwnException extends Exception {

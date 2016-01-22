@@ -105,11 +105,12 @@ public class WebDriverController {
     }
 
     @AfterMethod
-    public void CheckScreens() {
+    public void CheckScreens(Method method) {
 	            for (int i = 0; i < count; i++) {
-	                CheckingDifferentImages.checkDifference(pathToCheckingScreens + "\\" + i + ".png",
+	                if(CheckingDifferentImages.checkDifference(pathToCheckingScreens + "\\" + i + ".png",
 	                		pathToSampleScreens + "\\" + i + ".png",
-	                		pathToDiffScreens + "_diff_" + i + ".png", 1);
+	                		pathToDiffScreens + "_diff_" + i + ".png", 1))
+	                	failedTests.add(method.getName());
 	            }
         count = 0;
     }
@@ -160,9 +161,10 @@ public class WebDriverController {
     public void checkTests() {
         shutdown();
         if (!failedTests.isEmpty()) {
-            for (String s : failedTests)
+            for (String s : failedTests){
                 log.error(s);
-            Assert.fail("There was errors in tests");
+            	Assert.fail("There were some errors in tests " + failedTests);
+            }
         }
     }
 
