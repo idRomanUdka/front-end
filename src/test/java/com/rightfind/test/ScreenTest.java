@@ -1,5 +1,6 @@
 package com.rightfind.test;
 import org.openqa.selenium.By;
+import org.testng.Reporter;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -44,6 +45,9 @@ public class ScreenTest extends WebDriverController{
     
     //SEARCH FIELD
   	private static final By FIELD_SEARCH = By.name("query");
+  	
+  	//DIV article-details
+  	private static final By DIV_ARTICLE_DETAILS = By.id("article-details");
 
     @BeforeTest
     public void login(){
@@ -153,7 +157,8 @@ public class ScreenTest extends WebDriverController{
     @Test
     public void testArticleDetails(){
         openUrlInApp(urlArticleDetails);
-        makeScreenshot();
+	    waitWhileElementIsVisible(IMG_LOADING);
+	    makeScreenshotOfElement(DIV_ARTICLE_DETAILS);
     }
     
 }

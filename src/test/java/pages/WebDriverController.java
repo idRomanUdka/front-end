@@ -1,5 +1,6 @@
 package pages;
 
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -44,6 +45,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -69,7 +71,7 @@ public class WebDriverController {
     String flagFirebug = getProperties("flagFirebug");
     String sampleUrl = "";
     String checkingUrl = "";
-    public static List<String> failedTests = new ArrayList<String>();
+    public static List<String> failedTests;
 
 
     
@@ -93,27 +95,172 @@ public class WebDriverController {
         		checkingUrl = getProperties("checkingUrl");
         	}
     	}
+        if(failedTests == null)
+        	failedTests = new ArrayList<String>();
+    }
+
+    @BeforeMethod
+    public void setConditions(Method method) {
+    	String methodName = method.getName();
+        pathToCheckingScreens = "screenshots\\checking\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + methodName;
+        pathToSampleScreens = pathToCheckingScreens.replaceAll("checking", "sample");
+    	pathToDiffScreens = pathToCheckingScreens.replaceAll("checking", "diff");        
+    }
+
+    @AfterSuite
+    public void checkTests() {
+        shutdown();
+        if (!failedTests.isEmpty()) {
+        	System.setProperty("org.uncommons.reportng.escape-output", "false");
+            for (String screenShots : failedTests){
+                //System.out.println(screenShots);
+              Reporter.log(screenShots);
+            }
+        	Assert.fail("There were some errors in tests ");
+        }
     }
     
     @BeforeSuite
     public void deleteFile() {
-    	if(Boolean.valueOf(System.getProperty("flagClean"))){
-	    	deleteFileInDirectory("screenshots\\checking");
-	    	deleteFileInDirectory("screenshots\\sample");
-    	}
+	    deleteFileInDirectory("screenshots\\checking");
+	    deleteFileInDirectory("screenshots\\sample");
     }
 
     @AfterMethod
-    public void CheckScreens(Method method) {
+    public void CheckScreens(){
 	            for (int i = 0; i < count; i++) {
-	                if(CheckingDifferentImages.checkDifference(pathToCheckingScreens + "\\" + i + ".png",
+	                checkDifference(pathToCheckingScreens + "\\" + i + ".png",
 	                		pathToSampleScreens + "\\" + i + ".png",
-	                		pathToDiffScreens + "_diff_" + i + ".png", 1))
-	                	failedTests.add(method.getName());
+	                		pathToDiffScreens + "_diff_" + i + ".png", 1);
 	            }
         count = 0;
     }
 
+    /**
+     * Check difference.
+     *
+     * @param pathToCheckingScreens the path to the first screen
+     * @param pathToSampleScreens the path to the second
+     * @param pathToDiffScreens the name of a difference
+     * @param accuracy the accuracy   1pixels
+     * @throws MyOwnException 
+     */
+    public static void checkDifference(String pathToCheckingScreens, String pathToSampleScreens, String pathToDiffScreens, int accuracy){
+        BufferedImage im1 = null;
+        BufferedImage im2 = null;
+        //loading the two pictures
+        //read and load the image
+        File screenShotChecking = new File(pathToCheckingScreens);
+		String pathToScreenShotChecking = screenShotChecking.getAbsolutePath();
+        log.info(pathToScreenShotChecking);
+        File ScreenShotSample = new File(pathToSampleScreens);
+		String pathToScreenShotSample = ScreenShotSample.getAbsolutePath();
+        log.info(pathToScreenShotSample);
+		if (screenShotChecking.exists() && ScreenShotSample.exists()){
+	        try {
+	        	BufferedImage input = ImageIO.read(screenShotChecking);
+	            //build an image with the same dimension of the file read
+	            im1 =
+	                    new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	            //object create to draw into the bufferedImage
+	            Graphics2D g2d = im1.createGraphics();
+	            //draw input into im
+	            g2d.drawImage(input, 0, 0, null);
+	            //making all again for the second image
+	
+	        	BufferedImage input2 = ImageIO.read(ScreenShotSample);
+	            //build an image with the same dimension of the file read
+	            im2 = new BufferedImage(input2.getWidth(), input2.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	            //object create to draw into the bufferedImage
+	            Graphics2D g2d2 = im2.createGraphics();
+	            //draw input into im
+	            g2d2.drawImage(input2, 0, 0, null);
+	        } catch (Exception ex) {
+		       ex.printStackTrace();
+	        }
+	        showDifference(im1, im2, pathToDiffScreens, accuracy, pathToScreenShotChecking, pathToScreenShotSample);
+        }else{
+        	log.error(pathToScreenShotChecking + " or " + pathToScreenShotSample + " does not exist");
+        }
+    }
+
+    /**
+     * Show difference.
+     *
+     * @param im1 the im 1
+     * @param im2 the im 2
+     * @param nameDifference the name difference
+     * @param accuracy the accuracy
+     * @param pathToScreenShotSample 
+     * @param pathToScreenShotChecking 
+     */
+    public static String showDifference(BufferedImage im1, BufferedImage im2, String nameDifference, int accuracy, String pathToScreenShotChecking, String pathToScreenShotSample) {
+       try{
+        BufferedImage resultImage = new BufferedImage(im1.getWidth(), im2.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        double THR = 50;
+        int area = 0;
+        for (int h = 0; h < im1.getHeight(); h++) {
+            for (int w = 0; w < im1.getWidth(); w++) {
+            	
+            	try{
+	                int red1 = 0xff & (im1.getRGB(w, h) >> 16);
+	                int green1 = 0xff & (im1.getRGB(w, h) >> 8);
+	                int blue1 = 0xff & im1.getRGB(w, h);
+	
+	
+	                int red2 = 0xff & (im2.getRGB(w, h) >> 16);
+	                int green2 = 0xff & (im2.getRGB(w, h) >> 8);
+	                int blue2 = 0xff & im2.getRGB(w, h);
+	            	
+	
+	                //euclidian distance to estimate the simil.
+	                double dist = 0;
+	                dist = Math.sqrt(Math.pow((double) (red1 - red2), 2.0)
+	                        + Math.pow((double) (green1 - green2), 2.0)
+	                        + Math.pow((double) (blue1 - blue2), 2.0));
+	                if (dist > THR) {
+	                    resultImage.setRGB(w, h, im2.getRGB(w, h));
+	                    area++;
+	                } else {
+	                    resultImage.setRGB(w, h, 0);
+	                }
+	                //2nd option
+	           /*     if (dist > THR) {
+	                    resultImage.setRGB(w, h,255);
+	                    area++;
+	                } else {
+	                    resultImage.setRGB(w, h, im1.getRGB(w, h));
+	                }*/
+            	}catch(ArrayIndexOutOfBoundsException e){
+            		log.info(im1.getRGB(w, h));
+            		throw(e);
+            		
+            	}
+            } //w
+        } //h
+            if (accuracy < area) {
+                log.info("The difference is more than "+accuracy+" pixels and it is "+area);
+                File fileScreenshot = new File("target"+ File.separator +"failure_screenshots"+ File.separator +nameDifference);
+                fileScreenshot.getParentFile().mkdirs();
+                ImageIO.write(resultImage, "PNG", fileScreenshot);
+                String pathToFile = fileScreenshot.getAbsolutePath();
+                String methodName = nameDifference.substring(nameDifference.lastIndexOf("\\") + 1, nameDifference.lastIndexOf("_diff"));
+                log.info("The Diff file for the test "+ methodName +" screen was saved into " + pathToFile);
+                failedTests.add("The Diff file for the test "+ methodName + 
+                		" <a href='"+ pathToFile+ "'> <img style='border:1px dashed DarkSlateBlue;' src='" + pathToFile+ "' width='80' height ='60'/></a> "
+                		+ "  New: <a href='"+ pathToScreenShotChecking+ "'> <img style='border:1px dashed DarkSlateBlue;' src='" + pathToScreenShotChecking+ "' width='80' height ='60'/></a> "
+                		+ "  Old: <a href='"+ pathToScreenShotSample+ "'> <img style='border:1px dashed DarkSlateBlue;' src='" + pathToScreenShotSample+ "' width='80' height ='60'/></a> "
+        				+ "<br> <br>");
+                return fileScreenshot.getAbsolutePath();
+            } else {
+            	log.info("Everything is ok!");
+            	return "";
+            }
+        } catch (Exception ex) {
+      ex.printStackTrace();
+        }
+	return "";
+    }
 
     
     private static void deleteFileInDirectory(String path_from) {
@@ -140,32 +287,7 @@ public class WebDriverController {
             f.delete();
         }
     }
-    
-    
-    @BeforeSuite
-    public void initBrowser() {
-    	
-    }
 
-    @BeforeMethod
-    public void setConditions(Method method) {{
-        pathToCheckingScreens = "screenshots\\checking\\" + method.getDeclaringClass().getName() + "\\" + browser + "\\" + method.getName();
-        pathToSampleScreens = pathToCheckingScreens.replaceAll("checking", "sample");
-    	pathToDiffScreens = pathToCheckingScreens.replaceAll("checking", "diff");
-    	}
-        
-    }
-
-    @AfterSuite
-    public void checkTests() {
-        shutdown();
-        if (!failedTests.isEmpty()) {
-            for (String s : failedTests){
-                log.error(s);
-            	Assert.fail("There were some errors in tests " + s);
-            }
-        }
-    }
 
     /**
      * Get properties.
@@ -754,6 +876,7 @@ public class WebDriverController {
     public void makeScreenshot() {
         File scrFileChecking;
         File scrFileSample;
+        waitForPageLoaded();
         sendPause(5);
         try {
             scrFileChecking = ((TakesScreenshot) driverChecking).getScreenshotAs(OutputType.FILE);
