@@ -41,8 +41,8 @@ public class ScreenTest extends WebDriverController{
 	private static final By FIELD_PASSWORD = By.name("password");
 	
 	//LOADER
-    private static final By IMG_LOADING = By.cssSelector(".loading");
-    
+    //private static final By IMG_LOADING = By.cssSelector(".loading");
+	private static final By IMG_LOADING = By.cssSelector("img[src*='loader']");
     //SEARCH FIELD
   	private static final By FIELD_SEARCH = By.name("query");
   	
