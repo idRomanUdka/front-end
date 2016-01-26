@@ -52,7 +52,7 @@ public class ScreenTest extends WebDriverController{
     @BeforeTest
     public void login(){
         openUrlInApp(urlDigitalLibrary);
-        windowSetSize(1600,900);
+        //windowSetSize(1600,900);
         addCookie("RS.LOCATION", "2519ca7b-4a4c-4f9d-908f-c2c755598618");
 		type(FIELD_LOGIN, "pivaniushyn@copyright.com");
 		type(FIELD_PASSWORD, "123456");
