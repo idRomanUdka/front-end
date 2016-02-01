@@ -496,7 +496,6 @@ public class WebDriverController {
      * @return the boolean
      */
     public boolean waitForElementPresent(By by) {
-        
         try{
         	new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(by));
         }catch(RuntimeException e){
@@ -517,26 +516,36 @@ public class WebDriverController {
         return false;
     }
 
+    protected boolean validateElementIsNotVisibleAlready(By by) {
+    	if(validateElementVisibleForSec(by, 1))
+    		if(validateElementInvisible(by))
+    			return true;
+    		else return false;
+		return true;
+    }
 
+    
     /**
      * Wait element for sec.
      *
      * @param by      the by
      * @param seconds the seconds
+     * @return 
      */
-    public void waitElementForSec(By by, int seconds) {
+    public boolean validateElementVisibleForSec(By by, int seconds) {
         for (int i = 0; i < seconds; i++) {
             try {
                 if (findElement(by).isDisplayed()) {
                     sendPause(1);
-                    break;
+                    return true;
                 } else {
                     sendPause(1);
                 }
             } catch (Exception e) {
+            	return false;
             }
         }
-
+		return false;
     }
 
     /**
@@ -561,8 +570,9 @@ public class WebDriverController {
         });
     }
 
+    
+    
     public boolean validateElementInvisible(By by) {
-        
         try{
         	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         }catch(RuntimeException e){
@@ -968,8 +978,7 @@ public class WebDriverController {
      *
      * @param by - by of element contains xpath= or id= or css
      */
-    public boolean validateElementVisible(By by) {
-        
+    public boolean validateElementVisible(By by) {  
         try{
         	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfElementLocated(by));
         }catch(RuntimeException e){

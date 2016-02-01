@@ -43,6 +43,10 @@ public class ScreenTest extends WebDriverController{
 	//LOADER
     //private static final By IMG_LOADING = By.cssSelector(".loading");
 	private static final By IMG_LOADING = By.cssSelector("img[src*='loader']");
+	
+	//GREY DIV WHEN CONTENT IS LOADING
+	private static final By DIV_LOADING = By.cssSelector(".blockUI");
+	
     //SEARCH FIELD
   	private static final By FIELD_SEARCH = By.name("query");
   	
@@ -117,12 +121,15 @@ public class ScreenTest extends WebDriverController{
         openUrlInApp(urlReportsOrders);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsCosts);
+        validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsUsage);
+        validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsJournalCosts);
         makeScreenshot();
         openUrlInApp(urlReportsDocumentDeliveryCosts);
+        validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
     }
 
