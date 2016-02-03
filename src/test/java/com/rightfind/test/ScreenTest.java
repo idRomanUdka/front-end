@@ -127,6 +127,7 @@ public class ScreenTest extends WebDriverController{
         validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsJournalCosts);
+        validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsDocumentDeliveryCosts);
         validateElementIsNotVisibleAlready(DIV_LOADING);
