@@ -442,6 +442,21 @@ public class WebDriverController {
         waitForPageLoaded();
     }
 
+    public void setItemInLocalStorage(String item, String value) {
+        executeScript(String.format(
+            "window.localStorage.setItem('%s','%s');", item, value));
+    }
+    
+    public void setItemInSessionStorage(String item, String value) {
+        executeScript(String.format(
+            "window.sessionStorage.setItem('%s','%s');", item, value));
+    }
+    
+    public String getItemFromSessionStorage(String key) {
+        return (String) executeScript(String.format(
+            "return window.sessionStorage.getItem('%s');", key));
+    }
+    
     /**
      * Get alert text.
      *

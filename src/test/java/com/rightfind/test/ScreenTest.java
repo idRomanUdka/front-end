@@ -62,6 +62,7 @@ public class ScreenTest extends WebDriverController{
 		type(FIELD_PASSWORD, "123456");
 		submit(FIELD_PASSWORD);
 		waitForPageLoaded();
+        setItemInSessionStorage("isTooltipWasClosed", "yes");
         addCookie("RS.LOCATION", "2519ca7b-4a4c-4f9d-908f-c2c755598618");
     }
 
