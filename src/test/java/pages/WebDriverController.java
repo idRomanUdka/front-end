@@ -513,6 +513,7 @@ public class WebDriverController {
     public boolean waitForElementPresent(By by) {
         try{
         	new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(by));
+        	new WebDriverWait(driverChecking, 15).until(ExpectedConditions.presenceOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }
@@ -590,6 +591,7 @@ public class WebDriverController {
     public boolean validateElementInvisible(By by) {
         try{
         	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
+        	new WebDriverWait(driverChecking, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }
@@ -996,6 +998,7 @@ public class WebDriverController {
     public boolean validateElementVisible(By by) {  
         try{
         	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfElementLocated(by));
+        	new WebDriverWait(driver, 15).until(ExpectedConditions.visibilityOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }
@@ -1271,7 +1274,8 @@ public class WebDriverController {
      * @return the object
      */
     public Object executeScript(String script, Object... args) {
-        return ((JavascriptExecutor) driver).executeScript(script, args);
+    	((JavascriptExecutor) driver).executeScript(script, args);
+        return ((JavascriptExecutor) driverChecking).executeScript(script, args);
     }
 
     /**
