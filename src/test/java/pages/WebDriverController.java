@@ -551,7 +551,7 @@ public class WebDriverController {
     public boolean validateElementVisibleForSec(By by, int seconds) {
         for (int i = 0; i < seconds; i++) {
             try {
-                if (findElement(by).isDisplayed()) {
+                if (driver.findElement(by).isDisplayed() || driverChecking.findElement(by).isDisplayed()) {
                     sendPause(1);
                     return true;
                 } else {
@@ -591,7 +591,6 @@ public class WebDriverController {
     public boolean validateElementInvisible(By by) {
         try{
         	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
-        	new WebDriverWait(driverChecking, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }

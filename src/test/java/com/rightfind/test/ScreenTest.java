@@ -47,6 +47,9 @@ public class ScreenTest extends WebDriverController{
 	//DL delete button
 	private static final By BUTTON_DELETE_SELECTED = By.cssSelector(".btn-delete-selected");
 	
+	//Reports delete button
+	private static final By BUTTON_DOWNLOAD_FULL_REPORT = By.cssSelector(".btn-download");
+	
 	//GREY DIV WHEN CONTENT IS LOADING
 	private static final By DIV_LOADING = By.cssSelector(".blockUI");
 	
@@ -74,7 +77,7 @@ public class ScreenTest extends WebDriverController{
         openUrlInApp("/");
         makeScreenshotOfElement(FIELD_SEARCH);
         openUrlInApp(urlSearch);
-	    waitWhileElementIsVisible(IMG_LOADING);
+        validateElementIsNotVisibleAlready(IMG_LOADING);
         makeScreenshot();
     }
     
@@ -135,7 +138,7 @@ public class ScreenTest extends WebDriverController{
         validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsDocumentDeliveryCosts);
-        validateElementIsNotVisibleAlready(DIV_LOADING);
+        validateElementIsNotVisibleAlready(BUTTON_DOWNLOAD_FULL_REPORT);
         makeScreenshot();
     }
 
