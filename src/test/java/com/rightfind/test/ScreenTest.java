@@ -125,20 +125,21 @@ public class ScreenTest extends WebDriverController{
     }
 
     @Test
-    public void testReports(){
+    public void testAReport(){
         openUrlInApp(urlReportsOrders);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsCosts);
-        validateElementIsNotVisibleAlready(DIV_LOADING);
+        validateElementVisible(BUTTON_DOWNLOAD_FULL_REPORT);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsUsage);
         validateElementIsNotVisibleAlready(DIV_LOADING);
         makeScreenshot();
         openUrlInApp(urlReportsJournalCosts);
         validateElementIsNotVisibleAlready(DIV_LOADING);
+        validateElementVisible(BUTTON_DOWNLOAD_FULL_REPORT);
         makeScreenshot();
         openUrlInApp(urlReportsDocumentDeliveryCosts);
-        validateElementIsNotVisibleAlready(BUTTON_DOWNLOAD_FULL_REPORT);
+        validateElementVisible(BUTTON_DOWNLOAD_FULL_REPORT);
         makeScreenshot();
     }
 
