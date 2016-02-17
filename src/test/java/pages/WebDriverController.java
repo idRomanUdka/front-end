@@ -81,9 +81,10 @@ public class WebDriverController {
     protected static Logger log = Logger.getLogger(WebDriverController.class);
 
     public WebDriverController() {
-    	browser = System.getenv("browser");
+    	browser = System.getProperty("browser");
         if (browser == null)
             browser = browserProp;
+    	System.out.println("browser = " + browser);
         if (driver == null && driverChecking == null){
     		setBrowser();
         	sampleUrl = System.getenv("sampleUrl");
@@ -324,11 +325,13 @@ public class WebDriverController {
                 }
             } else if ("ie".equals(browser)) {
                 try {
-                    System.setProperty("webdriver.ie.driver", "lib\\IEDriverServer64.exe");
+                    System.setProperty("webdriver.ie.driver", "lib\\IEDriverServer.exe");
                     DesiredCapabilities capabilitiesIe = DesiredCapabilities.internetExplorer();
                     capabilitiesIe.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
                     driver = new InternetExplorerDriver(capabilitiesIe);
                     driverChecking = new InternetExplorerDriver(capabilitiesIe);
+                    driver.manage().window().maximize();
+                    driverChecking.manage().window().maximize();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -346,7 +349,6 @@ public class WebDriverController {
                 }
             }
         driver.manage().timeouts().setScriptTimeout(SCRIPT_TIMEOUT, TimeUnit.SECONDS);
-        maximizeWindow();
     }
 
     public void clickAtLocationOf(By element) {
@@ -903,7 +905,7 @@ public class WebDriverController {
         File scrFileChecking;
         File scrFileSample;
         waitForPageLoaded();
-        sendPause(5);
+        sendPause(1);
         try {
             scrFileChecking = ((TakesScreenshot) driverChecking).getScreenshotAs(OutputType.FILE);
             scrFileSample = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);

@@ -52,7 +52,7 @@
                     </property>
                 </properties>
                     <systemPropertyVariables>
-                        <baseUrl>${tests.baseUrl}</baseUrl>
+                        <browser>${browser}</browser>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>${suiteFile}</suiteXmlFile>

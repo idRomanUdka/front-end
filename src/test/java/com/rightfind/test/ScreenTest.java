@@ -125,7 +125,7 @@ public class ScreenTest extends WebDriverController{
     }
 
     @Test
-    public void testAReport(){
+    public void testReport(){
         openUrlInApp(urlReportsOrders);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsCosts);
