@@ -91,6 +91,7 @@ public class ScreenTest extends WebDriverController{
     @Test
     public void testCart(){
         openUrlInApp(urlCart);
+        validateElementIsNotVisibleAlready(IMG_LOADING);
         makeScreenshot();
     }
     
@@ -129,6 +130,7 @@ public class ScreenTest extends WebDriverController{
         openUrlInApp(urlReportsOrders);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsCosts);
+        validateElementIsNotVisibleAlready(DIV_LOADING);
         validateElementVisible(BUTTON_DOWNLOAD_FULL_REPORT);
         makeScreenshot();
         openUrlInApp(urlReportsSubscriptionsUsage);

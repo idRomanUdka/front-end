@@ -55,7 +55,7 @@
                         <browser>${browser}</browser>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
-                        <suiteXmlFile>${suiteFile}</suiteXmlFile>
+                        <suiteXmlFile>src/test/resources/testScreen.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>

@@ -593,6 +593,7 @@ public class WebDriverController {
     public boolean validateElementInvisible(By by) {
         try{
         	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
+        	new WebDriverWait(driverChecking, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         }catch(RuntimeException e){
         	return false;
         }
@@ -905,7 +906,7 @@ public class WebDriverController {
         File scrFileChecking;
         File scrFileSample;
         waitForPageLoaded();
-        sendPause(1);
+        sendPause(2);
         try {
             scrFileChecking = ((TakesScreenshot) driverChecking).getScreenshotAs(OutputType.FILE);
             scrFileSample = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
@@ -924,6 +925,7 @@ public class WebDriverController {
      */
     public void makeScreenshotOfElement(By by) {
     	Assert.assertTrue(validateElementVisible(by), "The Element " + by + " is not visible");
+        sendPause(1);
     	WebElement element = driver.findElement(by);  
     	WebElement element2 = driverChecking.findElement(by);  
     	//Get entire page screenshot
