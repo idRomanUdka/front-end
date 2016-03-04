@@ -593,8 +593,8 @@ public class WebDriverController {
     public boolean validateElementInvisible(By by) {
         try{
         	new WebDriverWait(driver, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
-        	new WebDriverWait(driverChecking, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         }catch(RuntimeException e){
+        	new WebDriverWait(driverChecking, 30).until(ExpectedConditions.invisibilityOfElementLocated(by));
         	return false;
         }
     	return true;
