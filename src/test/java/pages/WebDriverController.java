@@ -784,10 +784,9 @@ public class WebDriverController {
     public void click(By by) {
         log.debug("Click : ");
         waitForPageLoaded();
-        assertVisible(by);
+        waitForElementPresent(by);
         driver.findElement(by).click();
-        waitForPageLoaded();
-        makeScreenshot();
+        driverChecking.findElement(by).click();
     }
 
 

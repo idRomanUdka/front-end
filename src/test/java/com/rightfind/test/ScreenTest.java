@@ -58,6 +58,8 @@ public class ScreenTest extends WebDriverController{
   	
   	//DIV article-details
   	private static final By DIV_ARTICLE_DETAILS = By.id("article-details");
+	private static final By LINK_HOW_CAN_I_USE = By.cssSelector(".rights-dialog");
+	private static final By MODAL_ARTICLE_PARENTS_DETAILS  = By.cssSelector(".modal-content");
 
     @BeforeTest
     public void login(){
@@ -177,6 +179,9 @@ public class ScreenTest extends WebDriverController{
     public void testArticleDetails(){
         openUrlInApp(urlArticleDetails);
         validateElementIsNotVisibleAlready(IMG_LOADING);
+	    makeScreenshot();
+	    click(LINK_HOW_CAN_I_USE);
+	    validateElementVisible(MODAL_ARTICLE_PARENTS_DETAILS);
 	    makeScreenshot();
     }
     
