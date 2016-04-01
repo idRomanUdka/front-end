@@ -77,7 +77,7 @@ public class ScreenTest extends WebDriverController{
 	@Test
     public void testSearch(){
         openUrlInApp("/");
-        makeScreenshotOfElement(FIELD_SEARCH);
+        makeScreenshot();
         openUrlInApp(urlSearch);
         validateElementIsNotVisibleAlready(IMG_LOADING);
         makeScreenshot();
