@@ -341,6 +341,7 @@ public class WebDriverController {
                     ChromeOptions options = new ChromeOptions();
                     String browserLanguage = "--lang=en";
                     options.addArguments("--start-maximized");
+                    options.addArguments("no-sandbox");
                     options.addArguments(browserLanguage);
                     driver = new ChromeDriver(options);
                     driverChecking = new ChromeDriver(options);
